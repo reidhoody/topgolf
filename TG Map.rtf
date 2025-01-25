@@ -1,0 +1,144 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww34000\viewh19020\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>Topgolf Locations Map</title>\
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=visualization" async defer></script>\
+    <style>\
+        #map \{\
+            height: 100%;\
+            width: 100%;\
+        \}\
+        #filter \{\
+            position: absolute;\
+            top: 20px;\
+            left: 20px;\
+            background-color: white;\
+            padding: 10px;\
+            border-radius: 5px;\
+            z-index: 5;\
+        \}\
+    </style>\
+</head>\
+<body>\
+    <div id="filter">\
+        <select id="franchiseFilter" onchange="filterLocations()">\
+            <option value="all">Show All</option>\
+            <option value="Topgolf">Topgolf</option>\
+            <option value="BAJ">BAJ</option>\
+            <option value="Greenreb">Greenreb</option>\
+            <option value="Seal">Seal</option>\
+            <option value="TGLA">TGLA</option>\
+            <option value="Ventura">Ventura</option>\
+            <option value="Golf Saudi">Golf Saudi</option>\
+            <option value="WASL/Dubai Golf">WASL/Dubai Golf</option>\
+            <option value="Village Roadshow">Village Roadshow</option>\
+            <option value="Topgolf SEA">Topgolf SEA</option>\
+        </select>\
+    </div>\
+\
+    <div id="map"></div>\
+\
+    <script>\
+        let map;\
+        let markers = [];\
+        const locations = [\
+            \{ name: "Monterrey, Mexico", lat: 25.6702, lng: -100.3104, partner: "Ventura" \},\
+            \{ name: "Glasgow, UK", lat: 55.8600, lng: -4.2510, partner: "Topgolf" \},\
+            \{ name: "Dubai, UAE", lat: 25.2048, lng: 55.2708, partner: "WASL/Dubai Golf" \},\
+            \{ name: "Gold Coast, Australia", lat: -28.0167, lng: 153.4000, partner: "Village Roadshow" \},\
+            \{ name: "Thailand, Southeast Asia", lat: 13.7350, lng: 100.5667, partner: "Topgolf SEA" \},\
+            \{ name: "Wuhan, China", lat: 30.5928, lng: 114.3055, partner: "Seal" \},\
+            \{ name: "Surrey, UK", lat: 51.2950, lng: -0.6010, partner: "Topgolf" \},\
+            \{ name: "Chigwell, UK", lat: 51.6130, lng: 0.0810, partner: "Topgolf" \},\
+            \{ name: "Watford, UK", lat: 51.6670, lng: -0.3990, partner: "Topgolf" \},\
+            \{ name: "Bogota, Colombia", lat: 4.6097, lng: -74.0817, partner: "TGLA" \},\
+            \{ name: "Monterrey, Mexico", lat: 25.6702, lng: -100.3104, partner: "Ventura" \},\
+            \{ name: "Berlin, Germany", lat: 52.5200, lng: 13.4050, partner: "Greenreb" \},\
+            \{ name: "Vienna, Austria", lat: 48.2082, lng: 16.3738, partner: "Greenreb" \},\
+            \{ name: "Milan, Italy", lat: 45.4642, lng: 9.1900, partner: "Greenreb" \},\
+            \{ name: "Zurich, Switzerland", lat: 47.3769, lng: 8.5417, partner: "Greenreb" \},\
+            \{ name: "Sevilla, Spain", lat: 37.3886, lng: -5.9823, partner: "BAJ" \},\
+            \{ name: "Lisbon, Portugal", lat: 38.7169, lng: -9.1395, partner: "BAJ" \},\
+            \{ name: "Riyadh, Saudi Arabia", lat: 24.7136, lng: 46.6753, partner: "Golf Saudi" \},\
+            \{ name: "Singapore, Southeast Asia", lat: 1.3521, lng: 103.8198, partner: "Topgolf SEA" \},\
+            \{ name: "Ho Chi Minh City, Vietnam", lat: 10.8231, lng: 106.6297, partner: "Topgolf SEA" \},\
+            \{ name: "Kuala Lumpur, Malaysia", lat: 3.1390, lng: 101.6869, partner: "Topgolf SEA" \},\
+            \{ name: "Manila, Philippines", lat: 14.5995, lng: 120.9842, partner: "Topgolf SEA" \},\
+        ];\
+\
+        const partnerColors = \{\
+            Topgolf: "blue",\
+            BAJ: "red",\
+            Greenreb: "green",\
+            Seal: "purple",\
+            TGLA: "orange",\
+            Ventura: "yellow",\
+            "Golf Saudi": "darkblue",\
+            "WASL/Dubai Golf": "lightblue",\
+            "Village Roadshow": "teal",\
+            "Topgolf SEA": "pink"\
+        \};\
+\
+        function initMap() \{\
+            map = new google.maps.Map(document.getElementById("map"), \{\
+                center: \{ lat: 20, lng: 0 \}, // Starting point (zoomed out view)\
+                zoom: 2,\
+            \});\
+\
+            loadMarkers(locations);\
+        \}\
+\
+        function loadMarkers(locations) \{\
+            markers.forEach(marker => marker.setMap(null)); // Clear previous markers\
+\
+            locations.forEach(location => \{\
+                const marker = new google.maps.Marker(\{\
+                    position: \{ lat: location.lat, lng: location.lng \},\
+                    map: map,\
+                    title: location.name,\
+                    icon: \{\
+                        path: google.maps.SymbolPath.CIRCLE,\
+                        scale: 10,\
+                        fillColor: partnerColors[location.partner] || "gray",\
+                        fillOpacity: 1,\
+                        strokeWeight: 1\
+                    \},\
+                \});\
+\
+                const infoWindow = new google.maps.InfoWindow(\{\
+                    content: `<strong>$\{location.name\}</strong><br>Partner: $\{location.partner\}`\
+                \});\
+\
+                marker.addListener("click", () => \{\
+                    infoWindow.open(map, marker);\
+                \});\
+\
+                markers.push(marker);\
+            \});\
+        \}\
+\
+        function filterLocations() \{\
+            const filterValue = document.getElementById("franchiseFilter").value;\
+            let filteredLocations;\
+\
+            if (filterValue === "all") \{\
+                filteredLocations = locations;\
+            \} else \{\
+                filteredLocations = locations.filter(location => location.partner === filterValue);\
+            \}\
+\
+            loadMarkers(filteredLocations);\
+        \}\
+    </script>\
+</body>\
+</html>\
+}
